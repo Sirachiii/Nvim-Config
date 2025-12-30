@@ -19,10 +19,10 @@ vim.opt.rtp:prepend(lazypath)
 -- Load core config files
 require("core.options")
 require("core.keymaps")
-require("core.autocmds")  -- uncomment if you have this
+require("core.autocmds")
 
 -- Setup lazy.nvim
-require("lazy").setup("plugins", {  -- This "plugins" tells it where to find your plugin files!
+require("lazy").setup("plugins", {
   install = { colorscheme = { "vague" } },
   checker = { enabled = true },
 })

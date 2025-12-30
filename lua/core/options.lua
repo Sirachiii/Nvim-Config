@@ -26,40 +26,34 @@ opt.smartcase = true
 -- Appearance
 opt.termguicolors = true
 opt.signcolumn = "yes"
-opt.cursorline = false
+opt.cursorline = true
 vim.o.scrolloff = 8
 vim.o.list = true
 vim.opt.fillchars = { eob = " " }
 vim.g.have_nerd_font = true
+vim.o.showmode = false
+vim.opt.cursorlineopt = "number"
+vim.opt.laststatus = 3
 
 -- Backups
 opt.swapfile = false
 opt.backup = false
 opt.undofile = true
+vim.opt.shada = { "'40", "<50", "s10", "h" }
 
--- Splits
+-- Ultilites
 opt.splitright = true
 opt.splitbelow = true
-
--- Sets vim to ask for confirmation 
 vim.o.confirm = true
-
--- Enable mouse mode
 vim.o.mouse = 'a'
-
--- Don't show the mode, since it's already in the status line
-vim.o.showmode = false
-
--- Decrease update time
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
-
--- Preview substitutions live, as you type!
-vim.o.inccommand = 'split'
-
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
+
+-- Extras
+vim.o.inccommand = 'split'
 
 --- //////////////////////////////////////////////////// ---
 --- Neovide Options 
@@ -72,8 +66,5 @@ vim.g.neovide_padding_right = 0
 vim.g.neovide_padding_left = 0
 
 vim.g.neovide_scale_factor = 0.8
-
-vim.g.neovide_opacity = 1
-vim.g.neovide_normal_opacity = 1
 
 --- //////////////////////////////////////////////////// ---

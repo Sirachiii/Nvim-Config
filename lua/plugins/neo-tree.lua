@@ -8,16 +8,26 @@ return {
     'MunifTanjim/nui.nvim',
   },
   lazy = false,
+  priority = 1000,
   keys = {
-    { '\\', ':Neotree reveal<CR>', desc = 'NeoTree reveal', silent = true },
+    { '\\', ':Neotree toggle<CR>', desc = 'NeoTree toggle', silent = true },
+    { '<leader>i', ':Neotree reveal<CR>zR', desc = 'NeoTree expand all', silent = true },
   },
   opts = {
+    window = {
+      width = 30, -- Set the width of the neo-tree window
+      position = "left", -- Position the window on the left (or "right", "top", "bottom", "float")
+      statusline = false,
+    },
     filesystem = {
-      window = {
-        mappings = {
-          ['\\'] = 'close_window',
-        },
+      follow_current_file = true, -- Automatically reveal the current file in the tree
+      filtered_items = {
+        hide_dotfiles = false, -- Show dotfiles
+        hide_gitignored = false, -- Show gitignored files
       },
+    },
+    buffers = {
+      follow_current_file = true,
     },
   },
 }

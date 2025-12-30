@@ -5,6 +5,9 @@ local keymap = vim.keymap
 keymap.set("v", "<", "<gv")
 keymap.set("v", ">", ">gv")
 
+-- Better Quit 
+vim.keymap.set('n', '<leader>q', ':qa<CR>', { desc = 'Quit all' })
+
 -- Clear search highlights
 keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
 
@@ -33,5 +36,26 @@ end, { desc = 'Toggle relative line numbers' })
 
 -- Toggle cursorline
 vim.keymap.set('n', '<leader>cl', function()
-  vim.wo.cursorline = not vim.wo.cursorline
+  if vim.wo.cursorlineopt == "number" then
+    vim.wo.cursorlineopt = "line"
+  else
+    vim.wo.cursorlineopt = "number"
+  end
 end, { desc = 'Toggle cursorline' })
+
+-- Make so ; is the same as :
+vim.keymap.set("n", ";", ":", { desc = "CMD enter command mode" })
+
+-- Toggle Neovide Cursor Animations
+vim.keymap.set('n', '<leader>ta', function()
+  if vim.g.neovide_cursor_animation_length == 0 then
+    vim.g.neovide_cursor_animation_length = 0.15
+    vim.g.neovide_cursor_trail_size = 0.8
+    print("Cursor animation: ON")
+  else
+    vim.g.neovide_cursor_animation_length = 0
+    vim.g.neovide_cursor_trail_size = 0
+    print("Cursor animation: OFF")
+  end
+end, { desc = 'Toggle Neovide cursor animation' })
+
