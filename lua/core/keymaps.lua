@@ -66,3 +66,24 @@ vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { silent = true }
 vim.keymap.set("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { silent = true })
 vim.keymap.set("n", "<leader>bx", "<cmd>BufferLineClose<CR>", { silent = true })
 
+-- Delete Buffer
+local function delete_buffer()
+  local api = vim.api
+  local current = api.nvim_get_current_buf()
+  local bufs = vim.tbl_filter(function(buf)
+    return api.nvim_buf_is_loaded(buf) and api.nvim_buf_get_option(buf, "buftype") ~= "nofile"
+  end, vim.api.nvim_list_bufs())
+
+  if #bufs <= 1 then
+    -- only one buffer left, just clear it
+    vim.cmd("enew")
+  else
+    -- pick next buffer that's not neo-tree
+    local next_buf = bufs[1] ~= current and bufs[1] or bufs[2]
+    vim.cmd("buffer " .. next_buf)
+  end
+
+  -- safely delete current buffer
+  vim.cmd("bdelete! " .. current)
+end
+vim.keymap.set("n", "<leader>bd", delete_buffer, { desc = "Delete buffer safely" })

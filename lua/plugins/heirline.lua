@@ -9,103 +9,208 @@ return {
   config = function()
     local heirline = require("heirline")
     local conditions = require("heirline.conditions")
+    local devicons = require("nvim-web-devicons")
 
-    -- MODE COLORS (link to highlight groups)
+    -- ───────────── YOUR COLOR PALETTE ─────────────
+    local colors = {
+      bg = "#141415",
+      inactiveBg = "#1c1c24",
+      fg = "#cdcdcd",
+      comment = "#606079",
+      builtin = "#b4d4cf",
+      func = "#c48282",
+      string = "#e8b589",
+      number = "#e0a363",
+      property = "#c3c3d5",
+      constant = "#aeaed1",
+      parameter = "#bb9dbd",
+      visual = "#333738",
+      error = "#d8647e",
+      warning = "#f3be7c",
+      hint = "#7e98e8",
+      operator = "#90a0b5",
+      keyword = "#6e94b2",
+      type = "#9bb4bc",
+      plus = "#7fa563",
+      delta = "#f3be7c",
+    }
+
+    -- ───────────── MODE ─────────────
+    local mode_names = {
+      n = "NORMAL",
+      i = "INSERT",
+      v = "VISUAL",
+      V = "LINES",
+      ["\22"] = "BLOCK",
+      c = "COMMAND",
+      R = "REPLACE",
+      t = "TERMINAL",
+    }
+
     local mode_colors = {
-      n = "DiagnosticHint",
-      i = "String",
-      v = "Type",
-      V = "Type",
-      c = "Keyword",
-      t = "Identifier",
+      NORMAL  = colors.hint,
+      INSERT  = colors.string,
+      VISUAL  = colors.type,
+      LINES   = colors.delta,
+      BLOCK   = colors.error,
+      COMMAND = colors.keyword,
+      REPLACE = colors.error,
+      TERMINAL = colors.builtin,
+    }
+
+    -- ───────────── BLOCK SEPARATORS ─────────────
+    local LeftBlock = function(bg)
+      return { provider = "", hl = { fg = bg, bg = colors.bg } }
+    end
+
+    local RightBlock = function(bg)
+      return { provider = "", hl = { fg = bg, bg = colors.bg } }
+    end
+
+    local BlockBg = colors.visual
+
+    -- ───────────── MODE BLOCK ─────────────
+    local Mode = {
+      init = function(self)
+        self.mode = mode_names[vim.fn.mode()] or vim.fn.mode()
+      end,
+      LeftBlock(BlockBg),
+      {
+        provider = function(self)
+          return "  " .. self.mode .. " "
+        end,
+        hl = function(self)
+          return {
+            fg = mode_colors[self.mode] or colors.fg,
+            bg = BlockBg,
+            bold = true,
+          }
+        end,
+      },
+      RightBlock(BlockBg),
+    }
+
+    -- ───────────── GIT ─────────────
+    local GitBranch = {
+      condition = conditions.is_git_repo,
+      LeftBlock(BlockBg),
+      {
+        provider = function()
+          return "  " .. (vim.b.gitsigns_status_dict.head or "") .. " "
+        end,
+        hl = { fg = colors.parameter, bg = BlockBg, bold = true },
+      },
+      RightBlock(BlockBg),
+    }
+
+    local GitDiff = {
+      condition = conditions.is_git_repo,
+      {
+        provider = function()
+          local gs = vim.b.gitsigns_status_dict
+          if not gs then return "" end
+          return string.format(
+            " +%d -%d ~%d ",
+            gs.added or 0,
+            gs.removed or 0,
+            gs.changed or 0
+          )
+        end,
+        hl = { fg = colors.delta, bg = BlockBg },
+      },
+      RightBlock(BlockBg),
+    }
+
+    -- ───────────── FILE INFO (CENTER) ─────────────
+    local FileInfo = {
+      provider = function()
+        local name = vim.fn.expand("%:~:.")
+        local icon = devicons.get_icon(name) or ""
+        return " " .. icon .. " " .. name .. " "
+      end,
+      hl = { fg = colors.fg, bold = true },
+    }
+
+    -- ───────────── DIAGNOSTICS ─────────────
+    local Diagnostics = {
+      {
+        provider = function()
+          local e = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
+          return e > 0 and ("  " .. e) or ""
+        end,
+        hl = { fg = colors.error },
+      },
+      {
+        provider = function()
+          local w = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
+          return w > 0 and ("  " .. w) or ""
+        end,
+        hl = { fg = colors.warning },
+      },
+      {
+        provider = function()
+          local h = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
+          return h > 0 and ("  " .. h) or ""
+        end,
+        hl = { fg = colors.hint },
+      },
     }
 
     -- ───────────── RIGHT SIDE ─────────────
-    local mode = {
-      provider = function() return " "..vim.fn.mode():upper().." " end,
-      hl = function() return { link = mode_colors[vim.fn.mode()] or "Normal", bold = true } end,
-      left_sep = "",   -- left block
-      right_sep = "",  -- right block
+
+    local FileType = {
+      LeftBlock(BlockBg),
+      {
+        provider = function()
+          local ft = vim.bo.filetype
+          local icon = devicons.get_icon_by_filetype(ft) or ""
+         return " " .. icon .. " " .. ft:upper() .. " "
+        end,
+        hl = { fg = colors.func, bg = BlockBg, bold = true },
+      },
+      RightBlock(BlockBg),
     }
 
-    local filename = {
-      provider = function() return " "..vim.fn.expand("%:t").." " end,
-      cond = conditions.buffer_not_empty,
-      hl = { link = "Normal" },
-      left_sep = "",
-      right_sep = "",
+    local Position = {
+      LeftBlock(BlockBg),
+      {
+        provider = function()
+          return string.format(" %d:%d ", vim.fn.line("."), vim.fn.col("."))
+        end,
+        hl = { fg = colors.plus, bg = BlockBg, bold = true },
+      },
+      RightBlock(BlockBg),
     }
 
-    local git_branch = {
-      provider = function()
-        local gs = vim.b.gitsigns_status_dict
-        return gs and gs.head and (" "..gs.head.." ") or ""
-      end,
-      cond = conditions.is_git_repo,
-      hl = { link = "Identifier" },
-      left_sep = "",
-      right_sep = "",
+    local Percentage = {
+      LeftBlock(BlockBg),
+      {
+        provider = function()
+          local pct = vim.fn.line(".") / vim.fn.line("$") * 100
+          return string.format(" %3.0f%%%% ", pct) .. " "
+        end,
+        hl = { fg = colors.hint, bg = BlockBg, bold = true },
+      },
+      RightBlock(BlockBg),
     }
 
-    local git_diff = {
-      provider = function()
-        local gs = vim.b.gitsigns_status_dict
-        if not gs then return "" end
-        return "+"..(gs.added or 0).." -"..(gs.removed or 0).." "
-      end,
-      cond = conditions.is_git_repo,
-      hl = { link = "DiagnosticInfo" },
-      left_sep = "",
-      right_sep = "",
-    }
-
-    -- ───────────── LEFT SIDE ─────────────
-    local folder = {
-      provider = function()
-        return " "..vim.fn.fnamemodify(vim.fn.getcwd(), ":t").." "
-      end,
-      hl = { link = "Directory" },
-      left_sep = "",
-      right_sep = "",
-    }
-
-    local pos = {
-      provider = function()
-        return vim.fn.line(".")..":"..vim.fn.col(".").." "
-      end,
-      hl = { link = "Comment" },
-      left_sep = "",
-      right_sep = "",
-    }
-
-    local file_pct = {
-      provider = function()
-        local pct = vim.fn.line(".") / vim.fn.line("$") * 100
-        return string.format("%3.0f%%%%", pct)
-      end,
-      hl = { link = "Comment" },
-      left_sep = "",
-      right_sep = "",
-    }
-
-    -- ───────────── SETUP ─────────────
+    -- ───────────── STATUSLINE ─────────────
     heirline.setup({
       statusline = {
+        Mode,
+        GitBranch,
+        GitDiff,
 
-        -- RIGHT 
-        mode,
-        filename,
-        git_branch,
-        git_diff,
-
-        -- FILL
         { provider = "%=" },
 
-        -- LEFT 
-        folder,
-        pos,
-        file_pct,
+        FileInfo,
+        Diagnostics,
 
+        { provider = "%=" },
+
+        FileType,
+        Position,
+        Percentage,
       },
     })
   end,

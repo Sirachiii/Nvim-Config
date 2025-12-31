@@ -11,6 +11,6 @@ plugins:
   - nvim cmp
   - telescope
   - which key
-
+  - bufferline
 
 

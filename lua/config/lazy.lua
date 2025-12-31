@@ -20,6 +20,7 @@ vim.opt.rtp:prepend(lazypath)
 require("core.options")
 require("core.keymaps")
 require("core.autocmds")
+require("extras.bufferSeparator")
 
 -- Setup lazy.nvim
 require("lazy").setup("plugins", {
