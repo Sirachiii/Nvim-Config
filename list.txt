@@ -1,0 +1,16 @@
+
+plugins: 
+  - Autopairs
+  - Vague Colourscheme
+  - Comment Nvim
+  - Snacks.nvim Dashboard
+  - heirline 
+  - indent_line
+  - lsp
+  - neo-tree
+  - nvim cmp
+  - telescope
+  - which key
+
+
+
