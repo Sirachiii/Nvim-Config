@@ -9,6 +9,7 @@ return {
   config = function()
     local heirline = require("heirline")
     local conditions = require("heirline.conditions")
+
     -- MODE COLORS (link to highlight groups)
     local mode_colors = {
       n = "DiagnosticHint",
@@ -18,6 +19,7 @@ return {
       c = "Keyword",
       t = "Identifier",
     }
+
     -- ───────────── RIGHT SIDE ─────────────
     local mode = {
       provider = function() return " "..vim.fn.mode():upper().." " end,
@@ -25,6 +27,7 @@ return {
       left_sep = "",   -- left block
       right_sep = "",  -- right block
     }
+
     local filename = {
       provider = function() return " "..vim.fn.expand("%:t").." " end,
       cond = conditions.buffer_not_empty,
@@ -32,6 +35,7 @@ return {
       left_sep = "",
       right_sep = "",
     }
+
     local git_branch = {
       provider = function()
         local gs = vim.b.gitsigns_status_dict
@@ -42,6 +46,7 @@ return {
       left_sep = "",
       right_sep = "",
     }
+
     local git_diff = {
       provider = function()
         local gs = vim.b.gitsigns_status_dict
@@ -53,6 +58,7 @@ return {
       left_sep = "",
       right_sep = "",
     }
+
     -- ───────────── LEFT SIDE ─────────────
     local folder = {
       provider = function()
@@ -62,6 +68,7 @@ return {
       left_sep = "",
       right_sep = "",
     }
+
     local pos = {
       provider = function()
         return vim.fn.line(".")..":"..vim.fn.col(".").." "
@@ -70,6 +77,7 @@ return {
       left_sep = "",
       right_sep = "",
     }
+
     local file_pct = {
       provider = function()
         local pct = vim.fn.line(".") / vim.fn.line("$") * 100
@@ -79,20 +87,25 @@ return {
       left_sep = "",
       right_sep = "",
     }
+
     -- ───────────── SETUP ─────────────
     heirline.setup({
       statusline = {
-        -- RIGHT (was left)
+
+        -- RIGHT 
         mode,
         filename,
         git_branch,
         git_diff,
+
         -- FILL
         { provider = "%=" },
-        -- LEFT (was right)
+
+        -- LEFT 
         folder,
         pos,
         file_pct,
+
       },
     })
   end,

@@ -59,3 +59,10 @@ vim.keymap.set('n', '<leader>ta', function()
   end
 end, { desc = 'Toggle Neovide cursor animation' })
 
+-- Tabline
+vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { silent = true })
+vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { silent = true })
+
+vim.keymap.set("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { silent = true })
+vim.keymap.set("n", "<leader>bx", "<cmd>BufferLineClose<CR>", { silent = true })
+
