@@ -103,6 +103,8 @@ return {
       RightBlock(BlockBg),
     }
 
+    lets say I add this hmm?
+
     local GitDiff = {
       condition = conditions.is_git_repo,
       {
