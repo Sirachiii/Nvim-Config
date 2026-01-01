@@ -87,3 +87,4 @@ local function delete_buffer()
   vim.cmd("bdelete! " .. current)
 end
 vim.keymap.set("n", "<leader>bd", delete_buffer, { desc = "Delete buffer safely" })
+
