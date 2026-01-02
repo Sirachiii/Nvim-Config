@@ -1,21 +1,17 @@
 
 return {
   "rebelot/heirline.nvim",
-  dependencies = {
-    "nvim-tree/nvim-web-devicons",
-    "lewis6991/gitsigns.nvim",
-  },
-  event = "UiEnter",
   config = function()
-    local heirline = require("heirline")
     local conditions = require("heirline.conditions")
-    local devicons = require("nvim-web-devicons")
+    local utils = require("heirline.utils")
 
-    -- ───────────── YOUR COLOR PALETTE ─────────────
+    -- Colors matching your theme
     local colors = {
       bg = "#141415",
       inactiveBg = "#1c1c24",
       fg = "#cdcdcd",
+      floatBorder = "#878787",
+      line = "#252530",
       comment = "#606079",
       builtin = "#b4d4cf",
       func = "#c48282",
@@ -31,190 +27,275 @@ return {
       operator = "#90a0b5",
       keyword = "#6e94b2",
       type = "#9bb4bc",
+      search = "#405065",
       plus = "#7fa563",
       delta = "#f3be7c",
     }
 
-    -- ───────────── MODE ─────────────
-    local mode_names = {
-      n = "NORMAL",
-      i = "INSERT",
-      v = "VISUAL",
-      V = "LINES",
-      ["\22"] = "BLOCK",
-      c = "COMMAND",
-      R = "REPLACE",
-      t = "TERMINAL",
-    }
-
-    local mode_colors = {
-      NORMAL  = colors.hint,
-      INSERT  = colors.string,
-      VISUAL  = colors.type,
-      LINES   = colors.delta,
-      BLOCK   = colors.error,
-      COMMAND = colors.keyword,
-      REPLACE = colors.error,
-      TERMINAL = colors.builtin,
-    }
-
-    -- ───────────── BLOCK SEPARATORS ─────────────
-    local LeftBlock = function(bg)
-      return { provider = "", hl = { fg = bg, bg = colors.bg } }
+    -- Helper functions
+    local function get_mode_name()
+      local mode = vim.fn.mode(1)
+      local names = {
+          n = "NORMAL",
+          no = "N·PENDING",
+          nov = "N·PENDING",
+          noV = "N·PENDING",
+          ["no\22"] = "N·PENDING",
+          niI = "N·INSERT",
+          niR = "N·REPLACE",
+          niV = "N·V-REPLACE",
+          nt = "NORMAL",
+          v = "VISUAL",
+          vs = "VISUAL",
+          V = "V·LINE",
+          Vs = "V·LINE",
+          ["\22"] = "V·BLOCK",
+          ["\22s"] = "V·BLOCK",
+          s = "SELECT",
+          S = "S·LINE",
+          ["\19"] = "S·BLOCK",
+          i = "INSERT",
+          ic = "INSERT",
+          ix = "INSERT",
+          R = "REPLACE",
+          Rc = "REPLACE",
+          Rx = "REPLACE",
+          Rv = "V·REPLACE",
+          Rvc = "V·REPLACE",
+          Rvx = "V·REPLACE",
+          c = "COMMAND",
+          cv = "EX",
+          r = "...",
+          rm = "MORE",
+          ["r?"] = "CONFIRM",
+          ["!"] = "SHELL",
+          t = "TERMINAL",
+      }
+      return names[mode] or "UNKNOWN"
     end
 
-    local RightBlock = function(bg)
-      return { provider = "", hl = { fg = bg, bg = colors.bg } }
+    local function get_mode_color()
+      local mode = vim.fn.mode():sub(1, 1)
+      local colors_map = {
+          n = "hint",       -- normal: blue
+          i = "func",       -- insert: pink/red
+          v = "parameter",  -- visual: purple
+          V = "parameter",
+          ["\22"] = "parameter",
+          c = "warning",    -- command: orange
+          s = "parameter",
+          S = "parameter",
+          ["\19"] = "parameter",
+          R = "plus",       -- replace: green
+          r = "warning",
+          ["!"] = "error",
+          t = "plus",       -- terminal: green
+      }
+      return colors_map[mode] or "func"
     end
 
-    local BlockBg = colors.visual
-
-    -- ───────────── MODE BLOCK ─────────────
-    local Mode = {
-      init = function(self)
-        self.mode = mode_names[vim.fn.mode()] or vim.fn.mode()
-      end,
-      LeftBlock(BlockBg),
-      {
-        provider = function(self)
-          return "  " .. self.mode .. " "
-        end,
-        hl = function(self)
-          return {
-            fg = mode_colors[self.mode] or colors.fg,
-            bg = BlockBg,
-            bold = true,
-          }
-        end,
-      },
-      RightBlock(BlockBg),
-    }
-
-    -- ───────────── GIT ─────────────
-    local GitBranch = {
-      condition = conditions.is_git_repo,
-      LeftBlock(BlockBg),
-      {
-        provider = function()
-          return "  " .. (vim.b.gitsigns_status_dict.head or "") .. " "
-        end,
-        hl = { fg = colors.parameter, bg = BlockBg, bold = true },
-      },
-      RightBlock(BlockBg),
-    }
-
-    lets say I add this hmm?
-
-    local GitDiff = {
-      condition = conditions.is_git_repo,
-      {
-        provider = function()
-          local gs = vim.b.gitsigns_status_dict
-          if not gs then return "" end
-          return string.format(
-            " +%d -%d ~%d ",
-            gs.added or 0,
-            gs.removed or 0,
-            gs.changed or 0
-          )
-        end,
-        hl = { fg = colors.delta, bg = BlockBg },
-      },
-      RightBlock(BlockBg),
-    }
-
-    -- ───────────── FILE INFO (CENTER) ─────────────
-    local FileInfo = {
+    -- Components
+    local ViMode = {
       provider = function()
-        local name = vim.fn.expand("%:~:.")
-        local icon = devicons.get_icon(name) or ""
-        return " " .. icon .. " " .. name .. " "
+          return " " .. get_mode_name() .. " "
       end,
-      hl = { fg = colors.fg, bold = true },
+      hl = function()
+          return { fg = "bg", bg = get_mode_color(), bold = true }
+      end,
+      update = {
+          "ModeChanged",
+          pattern = "*:*",
+          callback = vim.schedule_wrap(function()
+              vim.cmd("redrawstatus")
+          end),
+      },
     }
 
-    -- ───────────── DIAGNOSTICS ─────────────
+    local Slant1 = {
+      provider = "",
+      hl = function()
+          return { fg = get_mode_color(), bg = "line" }
+      end,
+    }
+
+    local FileName = {
+      provider = function()
+          local filename = vim.fn.expand("%:t")
+          if filename == "" then
+              return " [No Name] "
+          end
+          return " " .. filename .. " "
+      end,
+      hl = { fg = "comment", bg = "line" },
+    }
+
+    local Slant2 = {
+      provider = "",
+      hl = { fg = "line", bg = "bg" },
+    }
+
+    -- Git Component
+    local Git = {
+      condition = conditions.is_git_repo,
+      
+      {
+          provider = function()
+              local git_branch = vim.b.gitsigns_head
+              return git_branch and ("  " .. git_branch .. " ") or ""
+          end,
+          hl = { fg = "string", bold = true },
+      },
+    }
+
+    local GitChanges = {
+      condition = conditions.is_git_repo,
+      
+      provider = function()
+          local status = vim.b.gitsigns_status_dict
+          if not status then return "" end
+          
+          local parts = {}
+          if status.added and status.added > 0 then
+              table.insert(parts, "+" .. status.added)
+          end
+          if status.changed and status.changed > 0 then
+              table.insert(parts, "~" .. status.changed)
+          end
+          if status.removed and status.removed > 0 then
+              table.insert(parts, "-" .. status.removed)
+          end
+          
+          if #parts > 0 then
+              return " " .. table.concat(parts, " ") .. " "
+          end
+          return ""
+      end,
+      hl = function()
+          local status = vim.b.gitsigns_status_dict
+          if not status then return {} end
+          
+          if status.added and status.added > 0 then
+              return { fg = "plus" }
+          elseif status.changed and status.changed > 0 then
+              return { fg = "delta" }
+          elseif status.removed and status.removed > 0 then
+              return { fg = "error" }
+          end
+          return {}
+      end,
+    }
+
+    local Slant3 = {
+      condition = conditions.is_git_repo,
+      provider = "",
+    }
+
+    -- Align (push everything after to the right)
+    local Align = { provider = "%=" }
+
+    -- Diagnostics
     local Diagnostics = {
+      condition = conditions.has_diagnostics,
+      
       {
-        provider = function()
-          local e = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-          return e > 0 and ("  " .. e) or ""
-        end,
-        hl = { fg = colors.error },
+          provider = "/",
+          hl = { fg = "line" },
       },
       {
-        provider = function()
-          local w = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
-          return w > 0 and ("  " .. w) or ""
-        end,
-        hl = { fg = colors.warning },
+          provider = function()
+              local errors = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
+              local warnings = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
+              local hints = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
+              local info = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.INFO })
+              
+              local parts = {}
+              if errors > 0 then
+                  table.insert(parts, " " .. errors)
+              end
+              if warnings > 0 then
+                  table.insert(parts, " " .. warnings)
+              end
+              if info > 0 then
+                  table.insert(parts, " " .. info)
+              end
+              if hints > 0 then
+                  table.insert(parts, " " .. hints)
+              end
+              
+              return table.concat(parts, " ") .. " "
+          end,
+          hl = { bg = "line" },
       },
       {
-        provider = function()
-          local h = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
-          return h > 0 and ("  " .. h) or ""
-        end,
-        hl = { fg = colors.hint },
+          provider = "",
+          hl = { fg = "line" },
       },
+      
+      update = { "DiagnosticChanged", "BufEnter" },
     }
 
-    -- ───────────── RIGHT SIDE ─────────────
-
-    local FileType = {
-      LeftBlock(BlockBg),
-      {
-        provider = function()
-          local ft = vim.bo.filetype
-          local icon = devicons.get_icon_by_filetype(ft) or ""
-         return " " .. icon .. " " .. ft:upper() .. " "
-        end,
-        hl = { fg = colors.func, bg = BlockBg, bold = true },
-      },
-      RightBlock(BlockBg),
+    -- Working Directory
+    local WorkDir = {
+      provider = function()
+          local cwd = vim.fn.getcwd()
+          cwd = vim.fn.fnamemodify(cwd, ":t")
+          return "  " .. cwd .. " "
+      end,
+      hl = { fg = "fg", bold = true },
     }
 
-    local Position = {
-      LeftBlock(BlockBg),
-      {
-        provider = function()
-          return string.format(" %d:%d ", vim.fn.line("."), vim.fn.col("."))
-        end,
-        hl = { fg = colors.plus, bg = BlockBg, bold = true },
-      },
-      RightBlock(BlockBg),
+    local Slant4 = {
+      provider = "",
+      hl = { fg = "line" },
     }
 
-    local Percentage = {
-      LeftBlock(BlockBg),
-      {
-        provider = function()
-          local pct = vim.fn.line(".") / vim.fn.line("$") * 100
-          return string.format(" %3.0f%%%% ", pct) .. " "
-        end,
-        hl = { fg = colors.hint, bg = BlockBg, bold = true },
-      },
-      RightBlock(BlockBg),
+    -- Ruler (line:column)
+    local Ruler = {
+      provider = function()
+          return " %l:%c "
+      end,
+      hl = { fg = "comment", bg = "line" },
     }
 
-    -- ───────────── STATUSLINE ─────────────
-    heirline.setup({
-      statusline = {
-        Mode,
-        GitBranch,
-        GitDiff,
+    local Slant5 = {
+      provider = "",
+      hl = { fg = "line", bg = "hint" },
+    }
 
-        { provider = "%=" },
+    -- Percentage through file
+    local ScrollBar = {
+      provider = function()
+          return " %P "
+      end,
+      hl = { fg = "bg", bg = "hint", bold = true },
+    }
 
-        FileInfo,
-        Diagnostics,
+    -- Assemble the statusline
+    local StatusLine = {
+      ViMode,
+      Slant1,
+      FileName,
+      Slant2,
+      Git,
+      GitChanges,
+      Slant3,
+      Align,
+      Diagnostics,
+      WorkDir,
+      Slant4,
+      Ruler,
+      Slant5,
+      ScrollBar,
+    }
 
-        { provider = "%=" },
-
-        FileType,
-        Position,
-        Percentage,
+    -- Setup
+    require("heirline").setup({
+      statusline = StatusLine,
+      opts = {
+          colors = colors,
       },
     })
   end,
 }
+
 
