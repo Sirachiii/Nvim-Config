@@ -88,3 +88,19 @@ local function delete_buffer()
 end
 vim.keymap.set("n", "<leader>bd", delete_buffer, { desc = "Delete buffer safely" })
 
+-- Nvim Tree Binds
+vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+
+-- Remap Ctrl + arrow keys for resizing windows
+vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase Window Height" })
+vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease Window Height" })
+vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase Window Width" })
+vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease Window Width" })
+
+-- Optional: Map <leader>se to equalize all splits
+vim.keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal sizes" })
+
+-- Add blank lines without leaving normal mode
+vim.keymap.set('n', '<leader>o', 'o<Esc>', { desc = 'Add blank line below' })
+vim.keymap.set('n', '<leader>O', 'O<Esc>', { desc = 'Add blank line above' })
+

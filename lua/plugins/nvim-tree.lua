@@ -46,7 +46,7 @@ return {
           },
           glyphs = {
             git = {
-              unstaged  = "",
+              unstaged  = "✕",
               staged    = "✓",
             },
           },
@@ -64,7 +64,7 @@ return {
     })
 
     -- Set nvim-tree background
-    local bg = "#1e1e2e"
+    local bg = "#222226"
     vim.api.nvim_set_hl(0, "NvimTreeNormal",       { bg = bg })
     vim.api.nvim_set_hl(0, "NvimTreeNormalNC",     { bg = bg })
     vim.api.nvim_set_hl(0, "NvimTreeEndOfBuffer",  { bg = bg })
