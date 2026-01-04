@@ -11,7 +11,7 @@ return {
       diagnostics = { enable = false },
 
       view = {
-        width = 30,
+        width = 27,
         side = "left",
         signcolumn = "yes",
       },
@@ -37,11 +37,11 @@ return {
         icons = {
           webdev_colors = true,
           git_placement = "after",
-          padding = " ", -- space between files and left
+          padding = " ",
           show = {
             file = true,
             folder = true,
-            folder_arrow = false,
+            folder_arrow = true,
             git = true,
           },
           glyphs = {
@@ -64,7 +64,7 @@ return {
     })
 
     -- Set nvim-tree background
-    local bg = "#222226"
+    local bg = "#111111"
     vim.api.nvim_set_hl(0, "NvimTreeNormal",       { bg = bg })
     vim.api.nvim_set_hl(0, "NvimTreeNormalNC",     { bg = bg })
     vim.api.nvim_set_hl(0, "NvimTreeEndOfBuffer",  { bg = bg })
@@ -77,4 +77,3 @@ return {
     vim.api.nvim_set_hl(0, "NvimTreeIndentMarker", { fg = "#2a2a37" })
   end,
 }
-

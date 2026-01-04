@@ -34,6 +34,7 @@ vim.g.have_nerd_font = true
 vim.o.showmode = false
 vim.opt.cursorlineopt = "number"
 vim.opt.laststatus = 3
+vim.o.winborder = "rounded"
 
 -- Backups
 opt.swapfile = false
@@ -51,7 +52,6 @@ vim.o.timeoutlen = 300
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
-
 -- Extras
 vim.o.inccommand = 'split'
 

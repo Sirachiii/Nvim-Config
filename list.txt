@@ -1,18 +1,10 @@
 
-plugins: 
-  - Autopairs
-  - Vague Colourscheme
-  - Comment Nvim
-  - Snacks.nvim Dashboard
-  - heirline 
-  - indent_line
-  - lsp
-  - neo-tree
-  - nvim cmp
-  - telescope
-  - which key
-  - bufferline
-  - colourizer
+TO-DO: 
+  - Try to customise dashboard 
+  - Fix Statusline
+  - Install treesitter O_o
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 return {
   "rebelot/heirline.nvim",

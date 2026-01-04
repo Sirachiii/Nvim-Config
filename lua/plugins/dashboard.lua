@@ -1,3 +1,4 @@
+
 return {
   "folke/snacks.nvim",
   opts = {
@@ -19,7 +20,7 @@ return {
           { icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
           { icon = " ", key = "q", desc = "Quit", action = ":qa" },
         },
-      -- Used by the `header` section
+     -- Used by the `header` section
         header = [[
   ⣴⣶⣤⡤⠦⣤⣀⣤⠆     ⣈⣭⣿⣶⣿⣦⣼⣆         
    ⠉⠻⢿⣿⠿⣿⣿⣶⣦⠤⠄⡠⢾⣿⣿⡿⠋⠉⠉⠻⣿⣿⡛⣦      
@@ -45,7 +46,7 @@ Amor Fati
           return { item.icon, width = 2, hl = "icon" }
         end,
         footer = { "%s", align = "center" },
-        header = { "%s", align = "center" },
+        header = { "%s", align = "center", hl = "SnacksDashboardHeader" },
         file = function(item, ctx)
           local fname = vim.fn.fnamemodify(item.file, ":~")
           fname = ctx.width and #fname > ctx.width and vim.fn.pathshorten(fname) or fname
@@ -64,9 +65,13 @@ Amor Fati
       sections = {
         { section = "header" },
         { section = "keys", gap = 1, padding = 1 },
-        { section = "startup", gap = 1, padding=1 },
+        { section = "startup", gap = 4, padding = 4 },
       },
     }
-  }
+  },
+  config = function(_, opts)
+    require("snacks").setup(opts)
+    vim.api.nvim_set_hl(0, "SnacksDashboardHeader", { fg = "#7e98e8" })
+  end
 }
 

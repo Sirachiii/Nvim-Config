@@ -1,301 +1,181 @@
 
 return {
-  "rebelot/heirline.nvim",
-  config = function()
-    local conditions = require("heirline.conditions")
-    local utils = require("heirline.utils")
+  {
+    "lewis6991/gitsigns.nvim",
+    lazy = false, -- optional: load when buffer has git
+    config = true,
+  },
+  {
+    "rebelot/heirline.nvim",
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      "lewis6991/gitsigns.nvim",
+    },
+    event = "UiEnter",
+    lazy = false, -- MUST load immediately
+    config = function()
+      local conditions = require("heirline.conditions")
+      local utils = require("heirline.utils")
 
-    -- Colors matching your theme
-    local colors = {
-      bg = "#141415",
-      inactiveBg = "#1c1c24",
-
-      floatBorder = "#878787",
-      line = "#252530",
-      comment = "#606079",
-      builtin = "#b4d4cf",
-      func = "#c48282",
-      string = "#e8b589",
-      number = "#e0a363",
-      property = "#c3c3d5",
-      constant = "#aeaed1",
-      parameter = "#bb9dbd",
-      visual = "#333738",
-      error = "#d8647e",
-      warning = "#f3be7c",
-      hint = "#7e98e8",
-      operator = "#90a0b5",
-      keyword = "#6e94b2",
-      type = "#9bb4bc",
-      search = "#405065",
-      plus = "#7fa563",
-      delta = "#f3be7c",
-    }
-
-    -- Helper functions
-    local function get_mode_name()
-      local mode = vim.fn.mode(1)
-      local names = {
-          n = "NORMAL",
-          no = "N·PENDING",
-          nov = "N·PENDING",
-          noV = "N·PENDING",
-          ["no\22"] = "N·PENDING",
-          niI = "N·INSERT",
-          niR = "N·REPLACE",
-          niV = "N·V-REPLACE",
-          nt = "NORMAL",
-          v = "VISUAL",
-          vs = "VISUAL",
-          V = "V·LINE",
-          Vs = "V·LINE",
-          ["\22"] = "V·BLOCK",
-          ["\22s"] = "V·BLOCK",
-          s = "SELECT",
-          S = "S·LINE",
-          ["\19"] = "S·BLOCK",
-          i = "INSERT",
-          ic = "INSERT",
-          ix = "INSERT",
-          R = "REPLACE",
-          Rc = "REPLACE",
-          Rx = "REPLACE",
-          Rv = "V·REPLACE",
-          Rvc = "V·REPLACE",
-          Rvx = "V·REPLACE",
-          c = "COMMAND",
-          cv = "EX",
-          r = "...",
-          rm = "MORE",
-          ["r?"] = "CONFIRM",
-          ["!"] = "SHELL",
-          t = "TERMINAL",
+      -- Colors
+      local colors = {
+        bg = "#141415",
+        fg = "#c3c3d5",
+        inactiveBg = "#1c1c24",
+        line = "#252530",
+        comment = "#606079",
+        builtin = "#b4d4cf",
+        func = "#c48282",
+        string = "#e8b589",
+        number = "#e0a363",
+        property = "#c3c3d5",
+        constant = "#aeaed1",
+        parameter = "#bb9dbd",
+        visual = "#333738",
+        error = "#d8647e",
+        warning = "#f3be7c",
+        hint = "#7e98e8",
+        plus = "#7fa563",
+        delta = "#f3be7c",
       }
-      return names[mode] or "UNKNOWN"
-    end
 
-    local function get_mode_color()
-      local mode = vim.fn.mode():sub(1, 1)
-      local colors_map = {
-          n = "hint",       -- normal: blue
-          i = "func",       -- insert: pink/red
-          v = "parameter",  -- visual: purple
-          V = "parameter",
-          ["\22"] = "parameter",
-          c = "warning",    -- command: orange
-          s = "parameter",
-          S = "parameter",
-          ["\19"] = "parameter",
-          R = "plus",       -- replace: green
-          r = "warning",
-          ["!"] = "error",
-          t = "plus",       -- terminal: green
-      }
-      return colors_map[mode] or "func"
-    end
+      require("heirline").load_colors(colors)
 
-    -- Components
-    local ViMode = {
-      provider = function()
-          return " " .. get_mode_name() .. " "
-      end,
-      hl = function()
-          return { fg = "bg", bg = get_mode_color(), bold = true }
-      end,
-      update = {
-          "ModeChanged",
-          pattern = "*:*",
-          callback = vim.schedule_wrap(function()
-              vim.cmd("redrawstatus")
-          end),
-      },
-    }
+      -- Nerd-font slant
+      local slant = ""
 
-    local Slant1 = {
-      provider = "",
-      hl = function()
-          return { fg = get_mode_color(), bg = "line" }
-      end,
-    }
+      -- Helpers
+      local function get_mode_name()
+        local mode = vim.fn.mode()
+        local names = {
+          n = "NORMAL", i = "INSERT", v = "VISUAL", V = "V·LINE", ["\22"] = "V·BLOCK",
+          c = "COMMAND", s = "SELECT", R = "REPLACE", t = "TERMINAL"
+        }
+        return names[mode] or mode
+      end
 
-    local FileName = {
-      provider = function()
-          local filename = vim.fn.expand("%:t")
-          if filename == "" then
-              return " [No Name] "
+      local function get_mode_color()
+        local mode = vim.fn.mode():sub(1,1)
+        local map = {
+          n="hint", i="func", v="parameter", V="parameter", ["\22"]="parameter",
+          c="warning", s="parameter", S="parameter", ["\19"]="parameter",
+          R="plus", r="warning", ["!"]="error", t="plus"
+        }
+        return map[mode] or "func"
+      end
+
+      -- Double-slant function
+      local function DoubleSlant(prev_color, next_color)
+        return {
+          provider = slant,
+          hl = function()
+            return {
+              fg = type(prev_color)=="function" and prev_color() or prev_color,
+              bg = type(next_color)=="function" and next_color() or next_color
+            }
           end
-          return " " .. filename .. " "
-      end,
-      hl = { fg = "comment", bg = "line" },
-    }
+        }
+      end
 
-    local Slant2 = {
-      provider = "",
-      hl = { fg = "line", bg = "bg" },
-    }
+      -- Components
+      local ViMode = {
+        provider = function() return " " .. get_mode_name() .. " " end,
+        hl = function() return { fg="bg", bg=get_mode_color(), bold=true } end,
+        update = { "ModeChanged", pattern="*:*", callback=vim.schedule_wrap(function() vim.cmd("redrawstatus") end) }
+      }
 
-    -- Git Component
-    local Git = {
-      condition = conditions.is_git_repo,
-      
-      {
+      local FileName = {
+        provider = function()
+          local name = vim.fn.expand("%:t")
+          return " " .. (name ~= "" and name or "[No Name]") .. " "
+        end,
+        hl = { fg="comment", bg="line" }
+      }
+
+      local Git = {
+        condition = conditions.is_git_repo,
+        {
           provider = function()
-              local git_branch = vim.b.gitsigns_head
-              return git_branch and ("  " .. git_branch .. " ") or ""
+            local branch = vim.b.gitsigns_head
+            return branch and ("  " .. branch .. " ") or ""
           end,
-          hl = { fg = "string", bold = true },
-      },
-    }
+          hl = { fg="string", bold=true }
+        }
+      }
 
-    local GitChanges = {
-      condition = conditions.is_git_repo,
-      
-      provider = function()
-          local status = vim.b.gitsigns_status_dict
-          if not status then return "" end
-          
+      local GitChanges = {
+        condition = conditions.is_git_repo,
+        provider = function()
+          local s = vim.b.gitsigns_status_dict
+          if not s then return "" end
           local parts = {}
-          if status.added and status.added > 0 then
-              table.insert(parts, "+" .. status.added)
-          end
-          if status.changed and status.changed > 0 then
-              table.insert(parts, "~" .. status.changed)
-          end
-          if status.removed and status.removed > 0 then
-              table.insert(parts, "-" .. status.removed)
-          end
-          
-          if #parts > 0 then
-              return " " .. table.concat(parts, " ") .. " "
-          end
-          return ""
-      end,
-      hl = function()
-          local status = vim.b.gitsigns_status_dict
-          if not status then return {} end
-          
-          if status.added and status.added > 0 then
-              return { fg = "plus" }
-          elseif status.changed and status.changed > 0 then
-              return { fg = "delta" }
-          elseif status.removed and status.removed > 0 then
-              return { fg = "error" }
-          end
+          if s.added and s.added>0 then table.insert(parts,"+"..s.added) end
+          if s.changed and s.changed>0 then table.insert(parts,"~"..s.changed) end
+          if s.removed and s.removed>0 then table.insert(parts,"-"..s.removed) end
+          return #parts>0 and (" " .. table.concat(parts," ") .. " ") or ""
+        end,
+        hl = function()
+          local s = vim.b.gitsigns_status_dict
+          if not s then return {} end
+          if s.added and s.added>0 then return { fg="plus" }
+          elseif s.changed and s.changed>0 then return { fg="delta" }
+          elseif s.removed and s.removed>0 then return { fg="error" } end
           return {}
-      end,
-    }
+        end
+      }
 
-    local Slant3 = {
-      condition = conditions.is_git_repo,
-      provider = "",
-    }
+      local Diagnostics = {
+        condition = function() return #vim.diagnostic.get(0) > 0 end,
+        provider = function()
+          local d = vim.diagnostic.get(0)
+          local e,w,h,i=0,0,0,0
+          for _,diag in ipairs(d) do
+            if diag.severity==vim.diagnostic.severity.ERROR then e=e+1
+            elseif diag.severity==vim.diagnostic.severity.WARN then w=w+1
+            elseif diag.severity==vim.diagnostic.severity.HINT then h=h+1
+            elseif diag.severity==vim.diagnostic.severity.INFO then i=i+1 end
+          end
+          local parts={}
+          if e>0 then table.insert(parts,e) end
+          if w>0 then table.insert(parts,w) end
+          if i>0 then table.insert(parts,i) end
+          if h>0 then table.insert(parts,h) end
+          return " " .. table.concat(parts," ") .. " "
+        end,
+        hl = { bg="line" },
+        update = {"DiagnosticChanged","BufEnter"}
+      }
 
-    -- Align (push everything after to the right)
-    local Align = { provider = "%=" }
+      local WorkDir = {
+        provider = function()
+          return "  " .. vim.fn.fnamemodify(vim.fn.getcwd(), ":t") .. " "
+        end,
+        hl = { fg="fg", bold=true }
+      }
 
-    -- Diagnostics
-    local Diagnostics = {
-      condition = conditions.has_diagnostics,
-      
-      {
-          provider = "/",
-          hl = { fg = "line" },
-      },
-      {
-          provider = function()
-              local errors = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-              local warnings = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
-              local hints = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
-              local info = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.INFO })
-              
-              local parts = {}
-              if errors > 0 then
-                  table.insert(parts, " " .. errors)
-              end
-              if warnings > 0 then
-                  table.insert(parts, " " .. warnings)
-              end
-              if info > 0 then
-                  table.insert(parts, " " .. info)
-              end
-              if hints > 0 then
-                  table.insert(parts, " " .. hints)
-              end
-              
-              return table.concat(parts, " ") .. " "
-          end,
-          hl = { bg = "line" },
-      },
-      {
-          provider = "",
-          hl = { fg = "line" },
-      },
-      
-      update = { "DiagnosticChanged", "BufEnter" },
-    }
+      local Ruler = { provider=" %l:%c ", hl={ fg="comment", bg="line" } }
+      local ScrollBar = { provider=" %P ", hl={ fg="bg", bg="hint", bold=true } }
+      local Align = { provider="%=" }
 
-    -- Working Directory
-    local WorkDir = {
-      provider = function()
-          local cwd = vim.fn.getcwd()
-          cwd = vim.fn.fnamemodify(cwd, ":t")
-          return "  " .. cwd .. " "
-      end,
-      hl = { fg = "fg", bold = true },
-    }
+      local StatusLine = {
+        ViMode,
+        DoubleSlant(function() return get_mode_color() end, "line"),
+        FileName,
+        DoubleSlant("line","bg"),
+        Git,
+        GitChanges,
+        DoubleSlant("line","bg"),
+        Align,
+        Diagnostics,
+        WorkDir,
+        DoubleSlant("line","bg"),
+        Ruler,
+        DoubleSlant("line","hint"),
+        ScrollBar,
+      }
 
-    local Slant4 = {
-      provider = "",
-      hl = { fg = "line" },
-    }
-
-    -- Ruler (line:column)
-    local Ruler = {
-      provider = function()
-          return " %l:%c "
-      end,
-      hl = { fg = "comment", bg = "line" },
-    }
-
-    local Slant5 = {
-      provider = "",
-      hl = { fg = "line", bg = "hint" },
-    }
-
-    -- Percentage through file
-    local ScrollBar = {
-      provider = function()
-          return " %P "
-      end,
-      hl = { fg = "bg", bg = "hint", bold = true },
-    }
-
-    -- Assemble the statusline
-    local StatusLine = {
-      ViMode,
-      Slant1,
-      FileName,
-      Slant2,
-      Git,
-      GitChanges,
-      Slant3,
-      Align,
-      Diagnostics,
-      WorkDir,
-      Slant4,
-      Ruler,
-      Slant5,
-      ScrollBar,
-    }
-
-    -- Setup
-    require("heirline").setup({
-      statusline = StatusLine,
-      opts = {
-          colors = colors,
-      },
-    })
-  end,
+      require("heirline").setup({ statusline = StatusLine })
+    end
+  }
 }
-
 
