@@ -1,9 +1,10 @@
+
 return {
   "vague-theme/vague.nvim",
   priority = 1000,
   config = function()
     require("vague").setup({
-      -- transparent = true,  -- Enable transparent background
+      -- transparent = true,
       -- style = {
       --   boolean = "none",
       --   number = "none",
@@ -22,3 +23,4 @@ return {
     vim.cmd.colorscheme("vague")
   end
 }
+

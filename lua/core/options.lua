@@ -35,6 +35,7 @@ vim.o.showmode = false
 vim.opt.cursorlineopt = "number"
 vim.opt.laststatus = 3
 vim.o.winborder = "rounded"
+vim.o.wrap = false
 
 -- Backups
 opt.swapfile = false

@@ -59,6 +59,21 @@ vim.keymap.set('n', '<leader>ta', function()
   end
 end, { desc = 'Toggle Neovide cursor animation' })
 
+-- Change neovide scale
+if vim.g.neovide then
+  vim.g.neovide_scale_factor = 0.8
+
+  local function change_scale(delta)
+    vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + delta
+  end
+
+  vim.keymap.set("n", "<C-=>", function() change_scale(0.1) end, { desc = "Zoom in (Neovide)" })
+  vim.keymap.set("n", "<C-->", function() change_scale(-0.1) end, { desc = "Zoom out (Neovide)" })
+  vim.keymap.set("n", "<C-0>", function()
+    vim.g.neovide_scale_factor = 0.8
+  end, { desc = "Reset zoom (Neovide)" })
+end
+
 -- Tabline
 vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { silent = true })
 vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { silent = true })
@@ -103,4 +118,14 @@ vim.keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal sizes" }
 -- Add blank lines without leaving normal mode
 vim.keymap.set('n', '<leader>o', 'o<Esc>', { desc = 'Add blank line below' })
 vim.keymap.set('n', '<leader>O', 'O<Esc>', { desc = 'Add blank line above' })
+vim.keymap.set("n", "<leader>nb", function()
+  require("nvim-navbuddy").open()
+end, { desc = "Navbuddy" })
 
+-- Comments 
+vim.keymap.set("n", "<leader>tq", "<cmd>TodoQuickFix<CR>", {
+  desc = "Open TODOs in quickfix"
+})
+vim.keymap.set("n", "<leader>tt", "<cmd>TodoTelescope<CR>", {
+  desc = "Search TODOs (Telescope)"
+})

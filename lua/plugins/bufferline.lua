@@ -1,3 +1,4 @@
+
 return {
   "akinsho/bufferline.nvim",
   event = "VeryLazy",
@@ -5,7 +6,13 @@ return {
   config = function()
     local bufferline = require("bufferline")
     bufferline.setup({
+
+      vim.api.nvim_set_hl(0, "BufferLineFill", {
+        bg = "#111111",
+      }),
+
       options = {
+
         offsets = {
           {
             filetype = "NvimTree",
@@ -16,9 +23,11 @@ return {
             highlight = "BufferLineOffsetTitle",
           },
         },
+
         show_buffer_close_icons = false,
         show_close_icon = false,
         always_show_bufferline = false,
+
       },
     })
     
@@ -44,3 +53,4 @@ return {
     })
   end,
 }
+

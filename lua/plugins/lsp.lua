@@ -14,6 +14,7 @@ return {
         "lua_ls",      -- Lua
         "pyright",     -- Python
         "ts_ls",       -- TypeScript/JavaScript
+        "clangd",      -- C 
       },
       automatic_installation = true,
     })
@@ -44,7 +45,7 @@ return {
     }
 
     -- Enable the servers
-    vim.lsp.enable({ "lua_ls", "pyright", "ts_ls" })
+    vim.lsp.enable({ "lua_ls", "pyright", "ts_ls", "clangd" })
 
     -- Add keymaps for LSP
     vim.api.nvim_create_autocmd("LspAttach", {
