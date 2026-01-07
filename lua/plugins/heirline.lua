@@ -28,7 +28,6 @@ return {
       end
 
       local STATUS_BG = hl_bg("StatusLine") or "#141415"
-
       ------------------------------------------------------------------
       -- Colors
       ------------------------------------------------------------------
@@ -256,8 +255,8 @@ return {
       local Align = { provider = "%=" }
 
       local funnyFace = {
-        provide = " ._. ",
-        hl = { fg = "bg", bg = "hint", bold = true },
+        provider = " ._. ",
+        hl = { fg = "line", bg = "hint", bold = true },
       }
 
       ------------------------------------------------------------------
@@ -272,7 +271,9 @@ return {
         GitChanges,
         RightSlant("bg", "bg"),
         Align,
+        RightSlant("bg", "hint"),
         funnyFace,
+        LeftSlant("hint", "bg"),
         Align,
         Diagnostics,
         WorkDir,
