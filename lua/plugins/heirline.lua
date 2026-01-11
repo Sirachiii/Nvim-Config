@@ -100,7 +100,7 @@ return {
 
       local function mode_color()
         return ({
-          n = "hint",
+          n = "info",
           i = "func",
           v = "parameter",
           V = "parameter",
@@ -224,10 +224,10 @@ return {
 
         {
           provider = function()
-            local n = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.HINT })
+            local n = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.info })
             return n > 0 and (" 󰌵 " .. n) or ""
           end,
-          hl = { fg = "hint" },
+          hl = { fg = "info" },
         },
 
         { provider = " " },
@@ -249,14 +249,14 @@ return {
 
       local ScrollBar = {
         provider = " %P ",
-        hl = { fg = "bg", bg = "hint", bold = true },
+        hl = { fg = "bg", bg = "info", bold = true },
       }
 
       local Align = { provider = "%=" }
 
-      local funnyFace = {
-        provider = " ._. ",
-        hl = { fg = "line", bg = "hint", bold = true },
+      local middle = {
+        provider = "   ",
+        hl = { fg = "bg", bg = "info", bold = true },
       }
 
       ------------------------------------------------------------------
@@ -271,15 +271,17 @@ return {
         GitChanges,
         RightSlant("bg", "bg"),
         Align,
-        RightSlant("bg", "hint"),
-        funnyFace,
-        LeftSlant("hint", "bg"),
+        RightSlant("bg", "line"),
+        RightSlant("line", "info"),
+        middle,
+        LeftSlant("info", "line"),
+        LeftSlant("line", "bg"),
         Align,
         Diagnostics,
         WorkDir,
         LeftSlant("bg", "line"),
         Ruler,
-        LeftSlant("line", "hint"),
+        LeftSlant("line", "info"),
         ScrollBar,
       }
 
