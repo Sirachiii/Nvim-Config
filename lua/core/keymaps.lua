@@ -44,7 +44,7 @@ vim.keymap.set('n', '<leader>cl', function()
 end, { desc = 'Toggle cursorline' })
 
 -- Make so ; is the same as :
-vim.keymap.set("n", ";", ":", { desc = "CMD enter command mode" })
+vim.keymap.set("n", ";", ":", { desc = "Enter command mode" })
 
 -- Toggle Neovide Cursor Animations
 vim.keymap.set('n', '<leader>ta', function()
@@ -118,6 +118,11 @@ vim.keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal sizes" }
 -- Add blank lines without leaving normal mode
 vim.keymap.set('n', '<leader>o', 'o<Esc>', { desc = 'Add blank line below' })
 vim.keymap.set('n', '<leader>O', 'O<Esc>', { desc = 'Add blank line above' })
+
+-- Add multiple lines around cursor
+vim.keymap.set('n', '<leader>P', 'o<Esc> O<Esc>', { desc = 'Add lines above' })
+
+-- Open Nav Buddy
 vim.keymap.set("n", "<leader>nb", function()
   require("nvim-navbuddy").open()
 end, { desc = "Navbuddy" })
@@ -129,3 +134,7 @@ vim.keymap.set("n", "<leader>tq", "<cmd>TodoQuickFix<CR>", {
 vim.keymap.set("n", "<leader>tt", "<cmd>TodoTelescope<CR>", {
   desc = "Search TODOs (Telescope)"
 })
+
+-- Open File Explorer 
+vim.keymap.set('n', '<leader>E', '<cmd>ex .<CR>', { desc = 'Open File Explorer' })
+
