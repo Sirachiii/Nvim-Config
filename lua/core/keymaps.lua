@@ -6,7 +6,7 @@ keymap.set("v", "<", "<gv")
 keymap.set("v", ">", ">gv")
 
 -- Better Quit 
-vim.keymap.set('n', '<leader>q', ':qa<CR>', { desc = 'Quit all' })
+keymap.set('n', '<leader>q', ':qa<CR>', { desc = 'Quit all' })
 
 -- Clear search highlights
 keymap.set("n", "<leader>nh", ":nohl<CR>", { desc = "Clear search highlights" })
@@ -29,112 +29,72 @@ keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window'
 keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- Toggle relative line numbers
-vim.keymap.set('n', '<leader>rn', function()
-  vim.wo.relativenumber = not vim.wo.relativenumber
-end, { desc = 'Toggle relative line numbers' })
-
--- Toggle cursorline
-vim.keymap.set('n', '<leader>cl', function()
-  if vim.wo.cursorlineopt == "number" then
-    vim.wo.cursorlineopt = "line"
-  else
-    vim.wo.cursorlineopt = "number"
-  end
-end, { desc = 'Toggle cursorline' })
-
 -- Make so ; is the same as :
-vim.keymap.set("n", ";", ":", { desc = "Enter command mode" })
-
--- Toggle Neovide Cursor Animations
-vim.keymap.set('n', '<leader>ta', function()
-  if vim.g.neovide_cursor_animation_length == 0 then
-    vim.g.neovide_cursor_animation_length = 0.15
-    vim.g.neovide_cursor_trail_size = 0.8
-    print("Cursor animation: ON")
-  else
-    vim.g.neovide_cursor_animation_length = 0
-    vim.g.neovide_cursor_trail_size = 0
-    print("Cursor animation: OFF")
-  end
-end, { desc = 'Toggle Neovide cursor animation' })
-
--- Change neovide scale
-if vim.g.neovide then
-  vim.g.neovide_scale_factor = 0.8
-
-  local function change_scale(delta)
-    vim.g.neovide_scale_factor = vim.g.neovide_scale_factor + delta
-  end
-
-  vim.keymap.set("n", "<C-=>", function() change_scale(0.1) end, { desc = "Zoom in (Neovide)" })
-  vim.keymap.set("n", "<C-->", function() change_scale(-0.1) end, { desc = "Zoom out (Neovide)" })
-  vim.keymap.set("n", "<C-0>", function()
-    vim.g.neovide_scale_factor = 0.8
-  end, { desc = "Reset zoom (Neovide)" })
-end
+keymap.set("n", ";", ":", { desc = "Enter command mode" })
 
 -- Tabline
-vim.keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { silent = true })
-vim.keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { silent = true })
-
-vim.keymap.set("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { silent = true })
-vim.keymap.set("n", "<leader>bx", "<cmd>BufferLineClose<CR>", { silent = true })
-
--- Delete Buffer
-local function delete_buffer()
-  local api = vim.api
-  local current = api.nvim_get_current_buf()
-  local bufs = vim.tbl_filter(function(buf)
-    return api.nvim_buf_is_loaded(buf) and api.nvim_buf_get_option(buf, "buftype") ~= "nofile"
-  end, vim.api.nvim_list_bufs())
-
-  if #bufs <= 1 then
-    -- only one buffer left, just clear it
-    vim.cmd("enew")
-  else
-    -- pick next buffer that's not neo-tree
-    local next_buf = bufs[1] ~= current and bufs[1] or bufs[2]
-    vim.cmd("buffer " .. next_buf)
-  end
-
-  -- safely delete current buffer
-  vim.cmd("bdelete! " .. current)
-end
-vim.keymap.set("n", "<leader>bd", delete_buffer, { desc = "Delete buffer safely" })
+keymap.set("n", "<Tab>", "<cmd>BufferLineCycleNext<CR>", { silent = true })
+keymap.set("n", "<S-Tab>", "<cmd>BufferLineCyclePrev<CR>", { silent = true })
+keymap.set("n", "<leader>bp", "<cmd>BufferLinePick<CR>", { silent = true })
 
 -- Nvim Tree Binds
-vim.keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
+keymap.set("n", "<leader>e", "<cmd>NvimTreeToggle<CR>", { desc = "Toggle file explorer" })
 
 -- Remap Ctrl + arrow keys for resizing windows
-vim.keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase Window Height" })
-vim.keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease Window Height" })
-vim.keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase Window Width" })
-vim.keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease Window Width" })
+keymap.set("n", "<C-Up>", ":resize +2<CR>", { desc = "Increase Window Height" })
+keymap.set("n", "<C-Down>", ":resize -2<CR>", { desc = "Decrease Window Height" })
+keymap.set("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase Window Width" })
+keymap.set("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease Window Width" })
 
 -- Optional: Map <leader>se to equalize all splits
-vim.keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal sizes" })
+keymap.set("n", "<leader>se", "<C-w>=", { desc = "Make splits equal sizes" })
 
 -- Add blank lines without leaving normal mode
-vim.keymap.set('n', '<leader>o', 'o<Esc>', { desc = 'Add blank line below' })
-vim.keymap.set('n', '<leader>O', 'O<Esc>', { desc = 'Add blank line above' })
-
--- Add multiple lines around cursor
-vim.keymap.set('n', '<leader>P', 'o<Esc> O<Esc>', { desc = 'Add lines above' })
+keymap.set('n', '<leader>o', 'o<Esc>', { desc = 'Add blank line below' })
+keymap.set('n', '<leader>O', 'O<Esc>', { desc = 'Add blank line above' })
 
 -- Open Nav Buddy
-vim.keymap.set("n", "<leader>nb", function()
+keymap.set("n", "<leader>nb", function()
   require("nvim-navbuddy").open()
 end, { desc = "Navbuddy" })
 
 -- Comments 
-vim.keymap.set("n", "<leader>tq", "<cmd>TodoQuickFix<CR>", {
+keymap.set("n", "<leader>tq", "<cmd>TodoQuickFix<CR>", {
   desc = "Open TODOs in quickfix"
 })
-vim.keymap.set("n", "<leader>tt", "<cmd>TodoTelescope<CR>", {
+keymap.set("n", "<leader>tt", "<cmd>TodoTelescope<CR>", {
   desc = "Search TODOs (Telescope)"
 })
 
 -- Open File Explorer 
-vim.keymap.set('n', '<leader>E', '<cmd>ex .<CR>', { desc = 'Open File Explorer' })
+keymap.set('n', '<leader>E', '<cmd>ex .<CR>', { desc = 'Open File Explorer' })
+
+-- Toggle relative line numbers
+-- keymap.set('n', '<leader>rn', function(), { desc = 'Toggle relative line numbers' })
+
+-- Toggle cursorline
+-- keymap.set('n', '<leader>cl', function(), { desc = 'Toggle cursorline' })
+
+-- Toggle Neovide Cursor Animations
+-- keymap.set('n', '<leader>ta', function(), { desc = 'Toggle Neovide cursor animation' })
+
+-- Change neovide scale
+-- keymap.set("n", "<C-=>", function() { desc = "Zoom in (Neovide)" })
+-- keymap.set("n", "<C-->", function() { desc = "Zoom out (Neovide)" })
+-- keymap.set("n", "<C-0>", function() { desc = "Reset zoom (Neovide)" })
+
+-- Delete Buffer
+-- keymap.set("n", "<leader>bd", function() , { desc = "Delete buffer safely" })
+
+-- Add multiple lines around cursor
+-- keymap.set('n', '<leader>P', function(), { desc = 'Add lines above' })
+
+-- Add lines at top and bottom of file (for my OCD lmao)
+-- keymap.set('n', '<leader>M', function(), { desc = 'Add lines around file' })
+
+-- Add lines around selection
+-- keymap.set('n', '<leader>N', function(), { desc = 'Add lines around paragraph' })
+
+-- Close all Buffers and go to Dashboard
+-- vim.keymap.set("n", "<leader>ba", function(), { desc = "Close all buffers and open dashboard" })
 

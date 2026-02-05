@@ -41,7 +41,7 @@ vim.o.wrap = false
 opt.swapfile = false
 opt.backup = false
 opt.undofile = true
-vim.opt.shada = { "'40", "<50", "s10", "h" }
+vim.opt.shada = { "'60", "<50", "s10", "h" }
 
 -- Ultilites
 opt.splitright = true
@@ -53,6 +53,7 @@ vim.o.timeoutlen = 300
 vim.schedule(function()
   vim.o.clipboard = 'unnamedplus'
 end)
+
 -- Extras
 vim.o.inccommand = 'split'
 
@@ -70,3 +71,4 @@ vim.g.neovide_scale_factor = 0.8
 vim.g.neovide_cursor_animation_length = 0
 
 --- //////////////////////////////////////////////////// ---
+

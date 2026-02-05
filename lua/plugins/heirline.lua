@@ -225,7 +225,7 @@ return {
         {
           provider = function()
             local n = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.info })
-            return n > 0 and (" 󰌵 " .. n) or ""
+            return n > 0 and (" 󰌵 "  .. n) or ""
           end,
           hl = { fg = "info" },
         },

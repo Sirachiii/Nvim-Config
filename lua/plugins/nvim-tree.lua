@@ -13,7 +13,7 @@ return {
       view = {
         width = 27,
         side = "left",
-        signcolumn = "yes",
+        signcolumn = "yes"
       },
 
       renderer = {

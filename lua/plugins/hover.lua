@@ -15,6 +15,16 @@ return {
         "LSP"
       },
     })
-    vim.keymap.set("n", "<leader>K", require("hover").hover, {desc = "hover.nvim"})
+    vim.keymap.set("n", "<leader>K", function() 
+      require("hover").open()
+    end, {desc = "hover.nvim"})
+
+    vim.keymap.set('n', '<C-p>', function()
+        require('hover').switch('previous')
+    end, { desc = 'hover.nvim (previous source)' })
+
+    vim.keymap.set('n', '<C-n>', function()
+        require('hover').switch('next')
+    end, { desc = 'hover.nvim (next source)' })
   end
 }
